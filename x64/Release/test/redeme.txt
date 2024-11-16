@@ -1,0 +1,5 @@
+common 正常图像
+dark 过暗
+overexposure 过曝
+overexposure_dark 过暗+过曝
+tilted 倾斜
