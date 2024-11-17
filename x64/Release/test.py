@@ -147,14 +147,46 @@ class ResultDecoder(object):
                 self.tilted_decode_rates.append(sum(self.tilted_decode_nums)/sum(self.tilted_detect_nums))
                 self.tilted_spend_times.append("-")
                 self.tilted_scene.append("tilted total")
+
+            # 其他场景条码信息
+            self.other_paths = []
+            self.other_detect_nums = []
+            self.other_decode_nums = []
+            self.other_decode_rates = []
+            self.other_spend_times = []
+            self.other_scene = []
+            for line in self.txt_lines:
+                file_path,barcode_info,latency = line.split(" ")
+                if ("tilted" or "overexposure" or "common" or "dark" ) not in file_path:
+                    self.other_paths.append(file_path)
+                    self.other_scene.append("other")
+                    self.other_spend_times.append(latency)
+                    barcodes = barcode_info.split("^")
+                    detect_num = len(barcodes)
+                    self.other_detect_nums.append(detect_num)
+                    decode_num = 0
+                    for b in barcodes:
+                        decode_info = b.split(",")[0]
+                        if decode_info != "":
+                            decode_num += 1
+                    self.other_decode_nums.append(decode_num)
+                    decode_rate = decode_num/detect_num
+                    self.other_decode_rates.append(decode_rate)
+            if sum(self.other_detect_nums):
+                self.other_paths.append("-")
+                self.other_detect_nums.append(sum(self.other_detect_nums))
+                self.other_decode_nums.append(sum(self.other_decode_nums))
+                self.other_decode_rates.append(sum(self.other_decode_nums)/sum(self.other_detect_nums))
+                self.other_spend_times.append("-")
+                self.other_scene.append("other total")
             
             # 汇总所有信息
-            self.paths += self.dark_paths + self.overexposure_paths + self.tilted_paths
-            self.detect_nums += self.dark_detect_nums + self.overexposure_detect_nums + self.tilted_detect_nums
-            self.decode_nums += self.dark_decode_nums + self.overexposure_decode_nums + self.tilted_decode_nums
-            self.decode_rates += self.dark_decode_rates + self.overexposure_decode_rates + self.tilted_decode_rates
-            self.spend_times += self.dark_spend_times + self.overexposure_spend_times + self.tilted_spend_times
-            self.scene += self.dark_scene + self.overexposure_scene + self.tilted_scene
+            self.paths += self.dark_paths + self.overexposure_paths + self.tilted_paths + self.other_paths
+            self.detect_nums += self.dark_detect_nums + self.overexposure_detect_nums + self.tilted_detect_nums + self.other_detect_nums
+            self.decode_nums += self.dark_decode_nums + self.overexposure_decode_nums + self.tilted_decode_nums + self.other_decode_nums
+            self.decode_rates += self.dark_decode_rates + self.overexposure_decode_rates + self.tilted_decode_rates + self.other_decode_rates
+            self.spend_times += self.dark_spend_times + self.overexposure_spend_times + self.tilted_spend_times + self.other_spend_times
+            self.scene += self.dark_scene + self.overexposure_scene + self.tilted_scene + self.other_scene
             
             if sum(self.detect_nums):
                 self.paths.append("-")
